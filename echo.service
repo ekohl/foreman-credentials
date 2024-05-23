@@ -1,0 +1,16 @@
+[Unit]
+Description=example app
+Requires=foreman-credentiald.socket
+
+[Service]
+Type=oneshot
+LoadCredential=server-certificate:/run/foreman-credentiald.socket
+LoadCredential=server-key:/run/foreman-credentiald.socket
+LoadCredential=server-client-ca:/run/foreman-credentiald.socket
+ExecStart=/usr/bin/echo
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require 'openssl'
+require 'webrick'
+require 'webrick/https'
+
+def credential(cred)
+  File.read(File.join(ENV['CREDENTIALS_DIRECTORY'], cred))
+end
+
+options = {
+  DocumentRoot: nil,
+  Port: 8443,
+  SSLEnable: true,
+  SSLCertificate: OpenSSL::X509::Certificate.new(credential('server-certificate')),
+  SSLPrivateKey: OpenSSL::PKey.read(credential('server-key')),
+  SSLClientCA: OpenSSL::X509::Certificate.new(credential('server-client-ca')),
+  SSLVerifyClient: OpenSSL::SSL::VERIFY_PEER,
+}
+
+server = WEBrick::HTTPServer.new(options)
+server.mount_proc '/' do |req, res|
+  res.body = 'Hello, world!'
+end
+
+trap 'INT' do
+  server.shutdown
+end
+
+server.start
